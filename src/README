@@ -1,0 +1,13 @@
+To run this program, you must update your classpath to include the mysql JDBC connector jar and have the Libdata.xml file
+in the same director this program is compiled and ran from.
+
+This can be done by adding the following to your ~/.bashrc file:
+    export CLASSPATH="$CLASSPATH:/usr/share/java/mysql-connector-java.jar"
+
+Compile by using the following command
+    javac Lab4.java
+
+Run the program with the following command
+    java Lab4 username password
+
+The program will use the given username as the database name, since this is the structure on Faure.

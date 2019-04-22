@@ -1,0 +1,115 @@
+<activities>
+
+<Borrowed_by>
+<MemberID> 2011 </MemberID>
+<ISBN> 96-42103-10800 </ISBN>
+<Checkout_date> N/A </Checkout_date>
+<Checkin_date> 06/10/2016 </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 2011 </MemberID>
+<ISBN> 96-42103-10011 </ISBN>
+<Checkout_date> 06/10/2016 </Checkout_date>
+<Checkin_date> N/A </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 2011 </MemberID>
+<ISBN> 96-42103-10006 </ISBN>
+<Checkout_date> 06/10/2016 </Checkout_date>
+<Checkin_date> N/A </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 2012 </MemberID>
+<ISBN> 96-42103-10002 </ISBN>
+<Checkout_date> N/A </Checkout_date>
+<Checkin_date> 06/10/2016 </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 2012 </MemberID>
+<ISBN> 96-42103-10604 </ISBN>
+<Checkout_date> 06/10/2016 </Checkout_date>
+<Checkin_date> N/A </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 2012 </MemberID>
+<ISBN> 96-42103-10709 </ISBN>
+<Checkout_date> 06/10/2016 </Checkout_date>
+<Checkin_date> N/A </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 2012 </MemberID>
+<ISBN> 97-34506-10709 </ISBN>
+<Checkout_date> 06/10/2016 </Checkout_date>
+<Checkin_date> N/A </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 1400 </MemberID>
+<ISBN> 96-42103-10022 </ISBN>
+<Checkout_date> 06/10/2016 </Checkout_date>
+<Checkin_date> N/A </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 2020 </MemberID>
+<ISBN> 96-42103-10401 </ISBN>
+<Checkout_date> N/A </Checkout_date>
+<Checkin_date> 06/11/2016 </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 2020 </MemberID>
+<ISBN> 96-42103-10709 </ISBN>
+<Checkout_date> 06/11/2016 </Checkout_date>
+<Checkin_date> N/A </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 2022 </MemberID>
+<ISBN> 96-42103-11003 </ISBN>
+<Checkout_date> N/A </Checkout_date>
+<Checkin_date> 06/11/2016 </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 2022 </MemberID>
+<ISBN> 96-42103-10109 </ISBN>
+<Checkout_date> N/A </Checkout_date>
+<Checkin_date> 06/11/2016 </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 2022 </MemberID>
+<ISBN> 96-42103-10093 </ISBN>
+<Checkout_date> 06/11/2016 </Checkout_date>
+<Checkin_date> N/A </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 2022 </MemberID>
+<ISBN> 97-12413-10093 </ISBN>
+<Checkout_date> 06/11/2016 </Checkout_date>
+<Checkin_date> N/A </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 1800 </MemberID>
+<ISBN> 96-42103-10093 </ISBN>
+<Checkout_date> 06/11/2016 </Checkout_date>
+<Checkin_date> N/A </Checkin_date>
+</Borrowed_by>
+
+<Borrowed_by>
+<MemberID> 1800 </MemberID>
+<ISBN> 96-42103-11709 </ISBN>
+<Checkout_date> 06/11/2016 </Checkout_date>
+<Checkin_date> N/A </Checkin_date>
+</Borrowed_by>
+
+</activities>
