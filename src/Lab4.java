@@ -22,17 +22,19 @@ public class Lab4 {
 
     private static final Map<String, String> STATEMENTS = new HashMap<>();
 
-    private static final String BOOK_EXISTS = "select * from book where isbn = '%s';";
+    private static final String GET_BOOK = "select * from stored_on where isbn='%s';";
 
-    private static final String CHECKOUT_ENTRY = "select * from borrowed_by where isbn='%s' and checkin_date is null;";
+    private static final String UPDATE_NUMBER_OF_COPIES = "update stored_on SET total_copies = %s where isbn='%s' and name='%s';";
 
-    private static final String BORROWED_BY_CONTENTS = "select * from borrowed_by;";
+    private static final String GET_CHECKOUT_ENTRY = "select * from borrowed_by where isbn='%s' and checkin_date is null;";
 
-    private static final String CHECKED_OUT_CONTENTS = "select * from borrowed_by where checkin_date is null;";
+    private static final String GET_BORROW_BY_CONTENTS = "select * from borrowed_by;";
 
-    private static final String TITLE_QUERY = "select title from book where isbn='%s';";
+    private static final String GET_CHECKED_OUT_BOOKS = "select * from borrowed_by where checkin_date is null;";
 
-    private static final String MEMBER_QUERY = "select last_name, first_name, member_id from member where member_id=%s;";
+    private static final String GET_BOOK_TITLE = "select title from book where isbn='%s';";
+
+    private static final String GET_MEMBER = "select last_name, first_name, member_id from member where member_id=%s;";
 
     private static final String DB_URL = "jdbc:mysql://faure/%s?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
@@ -108,141 +110,178 @@ public class Lab4 {
 
             for (Map.Entry<String, String> entry : STATEMENTS.entrySet()) {
                 if (entry.getValue().contains("insert")) {
-                    // checkout
-                    String bookExists = String.format(BOOK_EXISTS, entry.getKey());
-                    String book = null;
-                    try {
-                        ResultSet rs = stmt.executeQuery(bookExists);
-
-                        while (rs.next()) {
-                            book = rs.getString("isbn");
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    if (book == null) {
-                        System.out.println("Book does not exist : " + entry.getKey());
-                        continue;
-                    }
-
-                    try {
-                        stmt.execute(entry.getValue());
-                        System.out.println("Checked out book : " + entry.getKey());
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-
-                    }
-
-
+                    checkoutBook(entry, stmt);
                 } else if (entry.getValue().contains("update")) {
-                    //check in
-                    String bookExists = String.format(CHECKOUT_ENTRY, entry.getKey());
-                    String book = null;
-                    try {
-                        ResultSet rs = stmt.executeQuery(bookExists);
-
-                        while (rs.next()) {
-                            book = rs.getString("isbn");
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    if (book == null) {
-                        System.out.println("Book has no record of being checked out : " + entry.getKey());
-                        continue;
-                    }
-
-                    try {
-                        stmt.execute(entry.getValue());
-                        System.out.println("Checked in book : " + entry.getKey());
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
+                    checkinBook(entry, stmt);
                 }
             }
 
-            try {
-                System.out.println();
-                System.out.println("Borrowed By Contents :");
-                System.out.println("---------------------------------------");
-                ResultSet resultSet = stmt.executeQuery(BORROWED_BY_CONTENTS);
-                ResultSetMetaData attributeNames = resultSet.getMetaData();
-                int columnsNumber = attributeNames.getColumnCount();
-                while (resultSet.next()) {
-                    for (int i = 1; i <= columnsNumber; i++) {
-                        if (i > 1) {
-                            System.out.print(",  ");
-                        }
-
-                        String columnValue = resultSet.getString(i);
-                        System.out.print(attributeNames.getColumnName(i) + " : " + columnValue);
-                    }
-                    System.out.println();
-                }
-                System.out.println("---------------------------------------");
-                System.out.println();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            try {
-                System.out.println();
-                System.out.println("Checked Out Books :");
-                System.out.println("---------------------------------------");
-                ResultSet resultSet = stmt.executeQuery(CHECKED_OUT_CONTENTS);
-
-                Map<String, List<String>> checkedOutBooks = new HashMap<>();
-
-
-                while (resultSet.next()) {
-                    String memberId = resultSet.getString("member_id");
-                    String isbn = resultSet.getString("isbn");
-                    List<String> books;
-                    if (checkedOutBooks.containsKey(memberId)) {
-                        books = checkedOutBooks.get(memberId);
-                    } else {
-                        books = new ArrayList<>();
-                    }
-                    books.add(isbn);
-                    checkedOutBooks.put(memberId, books);
-
-                }
-
-                for (Map.Entry<String, List<String>> entry : checkedOutBooks.entrySet()) {
-
-                    ResultSet memberResultSet = stmt.executeQuery(String.format(MEMBER_QUERY, entry.getKey()));
-                    while (memberResultSet.next()) {
-                        System.out.print(memberResultSet.getString("last_name") + " ");
-                        System.out.print(memberResultSet.getString("first_name") + " ");
-                        System.out.print(entry.getKey());
-                        System.out.println();
-                    }
-
-                    for (String isbn : entry.getValue()) {
-
-                        ResultSet bookResultSet = stmt.executeQuery(String.format(TITLE_QUERY, isbn));
-                        while (bookResultSet.next()) {
-                            System.out.println("\t" + bookResultSet.getString("title"));
-                        }
-
-                    }
-
-
-                }
-
-                System.out.println("---------------------------------------");
-                System.out.println();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            printBorrowedBy(stmt);
+            printBorrowedBooks(stmt);
 
             con.close();
         } catch (Exception e) {
             System.out.println("Could not make connection to " + DB_URL);
+            e.printStackTrace();
+        }
+    }
+
+    private static void checkoutBook(Map.Entry<String, String> entry, Statement stmt) {
+
+        String bookExists = String.format(GET_BOOK, entry.getKey());
+        String isbn = null;
+        String library = null;
+        int copies = 0;
+        try {
+            ResultSet rs = stmt.executeQuery(bookExists);
+
+            while (rs.next()) {
+                isbn = rs.getString("isbn");
+                copies = rs.getInt("total_copies");
+                library = rs.getString("name");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (isbn == null) {
+            System.out.println("Book does not exist : " + entry.getKey());
+            return;
+        }
+
+        if (copies == 0) {
+            System.out.println("Book has no copies in library : " + entry.getKey());
+            return;
+        }
+
+        try {
+            stmt.execute(entry.getValue());
+            stmt.execute(String.format(UPDATE_NUMBER_OF_COPIES, --copies, isbn, library));
+            System.out.println("Checked out book : " + entry.getKey());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void checkinBook(Map.Entry<String, String> entry, Statement stmt) {
+        String checkoutEntry = String.format(GET_CHECKOUT_ENTRY, entry.getKey());
+        String isbn = null;
+        try {
+            ResultSet rs = stmt.executeQuery(checkoutEntry);
+
+            while (rs.next()) {
+                isbn = rs.getString("isbn");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String bookExists = String.format(GET_BOOK, entry.getKey());
+        String library = null;
+        int copies = 0;
+        try {
+            ResultSet rs = stmt.executeQuery(bookExists);
+
+            while (rs.next()) {
+                copies = rs.getInt("total_copies");
+                library = rs.getString("name");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (isbn == null) {
+            System.out.println("Book has no record of being checked out : " + entry.getKey());
+            return;
+        }
+
+        try {
+            stmt.execute(entry.getValue());
+            stmt.execute(String.format(UPDATE_NUMBER_OF_COPIES, ++copies, isbn, library));
+            System.out.println("Checked in book : " + entry.getKey());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void printBorrowedBy(Statement stmt) {
+        try {
+            System.out.println();
+            System.out.println("Borrowed By Contents :");
+            System.out.println("---------------------------------------");
+            ResultSet resultSet = stmt.executeQuery(GET_BORROW_BY_CONTENTS);
+            ResultSetMetaData attributeNames = resultSet.getMetaData();
+            int columnsNumber = attributeNames.getColumnCount();
+            while (resultSet.next()) {
+                for (int i = 1; i <= columnsNumber; i++) {
+                    if (i > 1) {
+                        System.out.print(",  ");
+                    }
+
+                    String columnValue = resultSet.getString(i);
+                    System.out.print(attributeNames.getColumnName(i) + " : " + columnValue);
+                }
+                System.out.println();
+            }
+            System.out.println("---------------------------------------");
+            System.out.println();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void printBorrowedBooks(Statement stmt) {
+        try {
+            System.out.println();
+            System.out.println("Checked Out Books :");
+            System.out.println("---------------------------------------");
+            ResultSet resultSet = stmt.executeQuery(GET_CHECKED_OUT_BOOKS);
+
+            Map<String, List<String>> checkedOutBooks = new HashMap<>();
+
+
+            while (resultSet.next()) {
+                String memberId = resultSet.getString("member_id");
+                String isbn = resultSet.getString("isbn");
+                List<String> books;
+                if (checkedOutBooks.containsKey(memberId)) {
+                    books = checkedOutBooks.get(memberId);
+                } else {
+                    books = new ArrayList<>();
+                }
+                books.add(isbn);
+                checkedOutBooks.put(memberId, books);
+
+            }
+
+            for (Map.Entry<String, List<String>> entry : checkedOutBooks.entrySet()) {
+
+                ResultSet memberResultSet = stmt.executeQuery(String.format(GET_MEMBER, entry.getKey()));
+                while (memberResultSet.next()) {
+                    System.out.print(memberResultSet.getString("last_name") + " ");
+                    System.out.print(memberResultSet.getString("first_name") + " ");
+                    System.out.print(entry.getKey());
+                    System.out.println();
+                }
+
+                for (String isbn : entry.getValue()) {
+
+                    ResultSet bookResultSet = stmt.executeQuery(String.format(GET_BOOK_TITLE, isbn));
+                    while (bookResultSet.next()) {
+                        System.out.println("\t" + bookResultSet.getString("title"));
+                    }
+
+                }
+
+
+            }
+
+            System.out.println("---------------------------------------");
+            System.out.println();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
